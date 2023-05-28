@@ -1,0 +1,28 @@
+# IntelliJ project files
+.idea/
+
+# Compiled output
+out/
+
+# Dependency directories
+lib/
+target/
+
+# IDE files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Logs and reports
+*.log
+*.txt
+*.xml
+*.html
+*.csv
+*.properties
+*.md
+
+# Other
+*.class
+*.swp

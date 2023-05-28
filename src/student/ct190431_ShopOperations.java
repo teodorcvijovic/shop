@@ -4,8 +4,11 @@
  */
 package student;
 
+import java.util.ArrayList;
 import java.util.List;
 import rs.etf.sab.operations.ShopOperations;
+
+import javax.xml.transform.Result;
 import java.sql.*;
 
 /**
@@ -72,38 +75,172 @@ public class ct190431_ShopOperations implements ShopOperations {
     }
 
     @Override
-    public int setCity(int i, String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int setCity(int shopId, String cityName) {
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "update Shop set IdC = (select IdC from City where Name=?) where IdS=?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, cityName);
+            stmt.setInt(2, shopId);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                return -1;
+            }
+
+            return 1;
+        } catch (SQLException e) {
+
+        }
+
+        return -1;
     }
 
     @Override
-    public int getCity(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int getCity(int shopId) {
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "select IdC from Shop where IdS = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int cityId = rs.getInt("IdC");
+                return cityId;
+            }
+
+        } catch (SQLException e) {
+
+        }
+
+        return -1;
     }
 
     @Override
-    public int setDiscount(int i, int i1) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int setDiscount(int shopId, int discount) {
+        if (discount < 0 || discount > 100) {
+            return -1;
+        }
+
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "update Shop set Discount = ? where IdS=?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, discount);
+            stmt.setInt(2, shopId);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                return -1;
+            }
+
+            return 1;
+        } catch (SQLException e) {}
+
+        return -1;
     }
 
     @Override
-    public int increaseArticleCount(int i, int i1) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int increaseArticleCount(int articleId, int increment) {
+        if (increment < 0) {
+            return -1;
+        }
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "update Article set AvailableCount = AvailableCount + ? where IdA = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, increment);
+            stmt.setInt(2, articleId);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                return -1;
+            }
+
+        } catch (SQLException e) {
+            return -1;
+        }
+
+        String sql2 = "select AvailableCount from Article where IdA = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql2)) {
+            stmt.setInt(1, articleId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int numOfArticles = rs.getInt("AvailableCount");
+                return numOfArticles;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
     }
 
     @Override
-    public int getArticleCount(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int getArticleCount(int articleId) {
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "select AvailableCount from Article where IdA = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, articleId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt("AvailableCount");
+                return count;
+            }
+
+        } catch (SQLException e) {}
+
+        return -1;
     }
 
     @Override
-    public List<Integer> getArticles(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Integer> getArticles(int shopId) {
+        List<Integer> articleIds = new ArrayList<>();
+        Connection conn = DB.getInstance().getConnection();
+
+        String sql = "SELECT IdA FROM Article WHERE IdS = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+                int articleId = resultSet.getInt("IdA");
+                articleIds.add(articleId);
+            }
+
+            return articleIds;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @Override
-    public int getDiscount(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int getDiscount(int shopId) {
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "select Discount from Shop where IdS = ?";
+
+        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int discount = rs.getInt("Discount");
+                return discount;
+            }
+
+        } catch (SQLException e) {}
+
+        return -1;
     }
     
 }

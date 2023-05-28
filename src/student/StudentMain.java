@@ -32,7 +32,6 @@ public class StudentMain {
 
         TestRunner.runTests();
 
-        int cityVranje = cityOperations.createCity("Vranje");
-        int cityLeskovac = cityOperations.createCity("Leskovac");
+
     }
 }

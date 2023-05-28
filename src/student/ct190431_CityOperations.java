@@ -105,8 +105,28 @@ public class ct190431_CityOperations implements CityOperations {
     }
 
     @Override
-    public List<Integer> getShops(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Integer> getShops(int cityId) {
+        List<Integer> shopIds = new ArrayList<>();
+        Connection conn = DB.getInstance().getConnection();
+
+        String sql = "SELECT IdS FROM Shop WHERE IdC = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cityId);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+                int shopId = resultSet.getInt("IdS");
+                shopIds.add(shopId);
+            }
+
+            return shopIds;
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
+
+        return null;
     }
     
 }

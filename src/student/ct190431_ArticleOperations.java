@@ -32,7 +32,7 @@ public class ct190431_ArticleOperations implements ArticleOperations {
                 return articleId;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         return -1;

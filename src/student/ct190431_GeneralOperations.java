@@ -14,19 +14,22 @@ import rs.etf.sab.operations.GeneralOperations;
  */
 public class ct190431_GeneralOperations implements GeneralOperations {
 
+    private Calendar time = null;
+
     @Override
-    public void setInitialTime(Calendar clndr) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void setInitialTime(Calendar time) {
+        this.time = time;
     }
 
     @Override
-    public Calendar time(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public Calendar time(int days) {
+        this.time.add(Calendar.DAY_OF_MONTH, days);
+        return this.time;
     }
 
     @Override
     public Calendar getCurrentTime() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return this.time;
     }
 
     @Override

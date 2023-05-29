@@ -31,7 +31,7 @@ public class ct190431_ShopOperations implements ShopOperations {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return -1;
     }
@@ -44,7 +44,7 @@ public class ct190431_ShopOperations implements ShopOperations {
             statement.setInt(1, clientId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
@@ -68,7 +68,7 @@ public class ct190431_ShopOperations implements ShopOperations {
             return clientId;
         } catch (SQLException e) {
             deleteClient(clientId);
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         return -1;
@@ -90,7 +90,7 @@ public class ct190431_ShopOperations implements ShopOperations {
 
             return 1;
         } catch (SQLException e) {
-
+//            e.printStackTrace();
         }
 
         return -1;
@@ -111,7 +111,7 @@ public class ct190431_ShopOperations implements ShopOperations {
             }
 
         } catch (SQLException e) {
-
+//            e.printStackTrace();
         }
 
         return -1;
@@ -136,7 +136,9 @@ public class ct190431_ShopOperations implements ShopOperations {
             }
 
             return 1;
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
 
         return -1;
     }
@@ -174,7 +176,7 @@ public class ct190431_ShopOperations implements ShopOperations {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         return -1;
@@ -194,7 +196,9 @@ public class ct190431_ShopOperations implements ShopOperations {
                 return count;
             }
 
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
 
         return -1;
     }
@@ -218,7 +222,7 @@ public class ct190431_ShopOperations implements ShopOperations {
 
             return articleIds;
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         return null;
@@ -238,7 +242,9 @@ public class ct190431_ShopOperations implements ShopOperations {
                 return discount;
             }
 
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
 
         return -1;
     }

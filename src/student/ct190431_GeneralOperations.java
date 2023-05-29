@@ -37,7 +37,7 @@ public class ct190431_GeneralOperations implements GeneralOperations {
         Connection connection = DB.getInstance().getConnection();
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DELETE FROM [Transaction]");
-            statement.executeUpdate("DELETE FROM [Basket]");
+            statement.executeUpdate("DELETE FROM [Item]");
             statement.executeUpdate("DELETE FROM [Article]");
             statement.executeUpdate("DELETE FROM [Shop]");
             statement.executeUpdate("DELETE FROM [Order]");

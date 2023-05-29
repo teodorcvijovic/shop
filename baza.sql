@@ -1,13 +1,13 @@
-DROP TABLE [Transaction]
-go
-
-DROP TABLE [Basket]
+DROP TABLE [Item]
 go
 
 DROP TABLE [Article]
 go
 
 DROP TABLE [Shop]
+go
+
+DROP TABLE [Transaction]
 go
 
 DROP TABLE [Order]
@@ -34,16 +34,6 @@ CREATE TABLE [Article]
 	CONSTRAINT [zero_value2]
 		 DEFAULT  0,
 	[IdS]                integer  NOT NULL 
-)
-go
-
-CREATE TABLE [Basket]
-( 
-	[IdO]                integer  NOT NULL ,
-	[IdA]                integer  NOT NULL ,
-	[Count]              integer  NULL 
-	CONSTRAINT [zero_value4]
-		 DEFAULT  0
 )
 go
 
@@ -79,6 +69,17 @@ CREATE TABLE [Distance]
 )
 go
 
+CREATE TABLE [Item]
+( 
+	[IdI]                integer  IDENTITY  NOT NULL ,
+	[IdA]                integer  NOT NULL ,
+	[IdO]                integer  NOT NULL ,
+	[Count]              integer  NULL 
+	CONSTRAINT [zero_value_1344457957]
+		 DEFAULT  0
+)
+go
+
 CREATE TABLE [Order]
 ( 
 	[IdO]                integer  IDENTITY  NOT NULL ,
@@ -87,7 +88,14 @@ CREATE TABLE [Order]
 		 DEFAULT  'created',
 	[SentTime]           datetime  NULL ,
 	[ReceiveTime]        datetime  NULL ,
-	[IdB]                integer  NOT NULL 
+	[IdB]                integer  NOT NULL ,
+	[IdC]                integer  NULL ,
+	[FinalPrice]         decimal(10,3)  NULL 
+	CONSTRAINT [minus_one_value_923194815]
+		 DEFAULT  -1,
+	[DiscountSum]        decimal(10,3)  NULL 
+	CONSTRAINT [minus_one_value_95676559]
+		 DEFAULT  -1
 )
 go
 
@@ -115,10 +123,6 @@ ALTER TABLE [Article]
 	ADD CONSTRAINT [XPKArticle] PRIMARY KEY  CLUSTERED ([IdA] ASC)
 go
 
-ALTER TABLE [Basket]
-	ADD CONSTRAINT [XPKBasket] PRIMARY KEY  CLUSTERED ([IdO] ASC,[IdA] ASC)
-go
-
 ALTER TABLE [Buyer]
 	ADD CONSTRAINT [XPKBuyer] PRIMARY KEY  CLUSTERED ([IdB] ASC)
 go
@@ -137,6 +141,10 @@ go
 
 ALTER TABLE [Distance]
 	ADD CONSTRAINT [XPKDistance] PRIMARY KEY  CLUSTERED ([IdC1] ASC,[IdC2] ASC)
+go
+
+ALTER TABLE [Item]
+	ADD CONSTRAINT [XPKItem] PRIMARY KEY  CLUSTERED ([IdI] ASC)
 go
 
 ALTER TABLE [Order]
@@ -158,19 +166,6 @@ go
 
 ALTER TABLE [Article]
 	ADD CONSTRAINT [R_5] FOREIGN KEY ([IdS]) REFERENCES [Shop]([IdS])
-		ON DELETE NO ACTION
-		ON UPDATE CASCADE
-go
-
-
-ALTER TABLE [Basket]
-	ADD CONSTRAINT [R_10] FOREIGN KEY ([IdO]) REFERENCES [Order]([IdO])
-		ON DELETE NO ACTION
-		ON UPDATE CASCADE
-go
-
-ALTER TABLE [Basket]
-	ADD CONSTRAINT [R_12] FOREIGN KEY ([IdA]) REFERENCES [Article]([IdA])
 		ON DELETE NO ACTION
 		ON UPDATE CASCADE
 go
@@ -198,8 +193,27 @@ ALTER TABLE [Distance]
 go
 
 
+ALTER TABLE [Item]
+	ADD CONSTRAINT [R_18] FOREIGN KEY ([IdA]) REFERENCES [Article]([IdA])
+		ON DELETE NO ACTION
+		ON UPDATE CASCADE
+go
+
+ALTER TABLE [Item]
+	ADD CONSTRAINT [R_19] FOREIGN KEY ([IdO]) REFERENCES [Order]([IdO])
+		ON DELETE NO ACTION
+		ON UPDATE CASCADE
+go
+
+
 ALTER TABLE [Order]
 	ADD CONSTRAINT [R_9] FOREIGN KEY ([IdB]) REFERENCES [Buyer]([IdB])
+		ON DELETE NO ACTION
+		ON UPDATE CASCADE
+go
+
+ALTER TABLE [Order]
+	ADD CONSTRAINT [R_20] FOREIGN KEY ([IdC]) REFERENCES [City]([IdC])
 		ON DELETE NO ACTION
 		ON UPDATE CASCADE
 go

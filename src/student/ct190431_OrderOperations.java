@@ -159,6 +159,8 @@ public class ct190431_OrderOperations implements OrderOperations {
 
     @Override
     public int completeOrder(int orderId) {
+        /****************** update order ******************/
+
         Connection conn = DB.getInstance().getConnection();
         String sql =    "update [Order] set State = 'sent', SentTime = getdate(), FinalPrice = (\n" +
                         "\tselect sum(Count * Price * (100 - Discount) / 100)\n" +
@@ -184,7 +186,7 @@ public class ct190431_OrderOperations implements OrderOperations {
             return -1;
         }
 
-        // location is now the city with shop closest to buyer
+        /****** location is now the city with shop closest to buyer *******/
 
 //        // get buyers city id
 //        sql = "select IdC from [Order] O join Buyer B on (O.IdB = B.IdB) where IdO = ?";
@@ -209,6 +211,10 @@ public class ct190431_OrderOperations implements OrderOperations {
 //                e.printStackTrace();
 //            }
 //        }
+
+        /**************** create transactions ******************/
+
+        // TO DO
 
         return -1;
     }

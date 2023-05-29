@@ -15,9 +15,8 @@ import java.util.*;
 
 public class StudentMain {
 
-
     public static void main(String[] args) {
-        boolean runPublicTests = false;
+        boolean runPublicTests = true;
         boolean runMyTest = true;
 
         ArticleOperations articleOperations = new ct190431_ArticleOperations(); // Change this for your implementation (points will be negative if interfaces are not implemented).

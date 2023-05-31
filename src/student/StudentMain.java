@@ -11,7 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 
 public class StudentMain {
 
@@ -88,7 +89,7 @@ public class StudentMain {
         }
     }
 
-    // helper methods
+    /************************* Client *******************************/
 
     static int createClient() {
         Connection conn = DB.getInstance().getConnection();
@@ -120,133 +121,4 @@ public class StudentMain {
 //            e.printStackTrace();
         }
     }
-
-    public static class GraphNode {
-        public int cityId = -1;
-        public int distance = -1;
-        public boolean hasShop = false;
-
-        public GraphNode(int cityId, int distance) {
-            this.cityId = cityId;
-            this.distance = distance;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            GraphNode graphNode = (GraphNode) o;
-
-            return cityId == graphNode.cityId;
-        }
-
-        @Override
-        public int hashCode() {
-            return cityId;
-        }
-    }
-
-    public static int findCityWithClosestShop(int buyersCityId) throws SQLException {
-        // TO DO
-        return -1;
-    }
-
-//    public static int findCityWithClosestShop(int buyersCityId) throws SQLException {
-//        Connection conn = DB.getInstance().getConnection();
-//
-//        /************ check if buyers city has a shop ************/
-//
-//        String sql = "select * from Shop where IdC = ?";
-//        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, buyersCityId);
-//
-//            ResultSet rs = ps.executeQuery();
-//
-//            if (rs.next()) {
-//                return buyersCityId;
-//            }
-//        }
-//
-//        /******************* init BFS ***********************/
-//
-//        int closestShop = -1;
-//
-//        HashSet<Integer> visitedNoShop = new HashSet<>();
-//        List<GraphNode> queue = new ArrayList<>();
-//
-//        GraphNode root = new GraphNode(buyersCityId, 0);
-//        queue.add(root);
-//
-//        /***************** BFS loop **********************/
-//
-//        while (!queue.isEmpty()) {
-//            int n = queue.size();
-//            int min = Integer.MAX_VALUE;
-//
-//            for (int i = 0; i < n; i++) {
-//                GraphNode node = queue.remove(0);
-//                if (!node.hasShop) {
-//                    visitedNoShop.add(node.cityId);
-//                }
-//
-//                if (node.hasShop && node.distance < min) {
-//                    min = node.distance;
-//                    closestShop = node.cityId;
-//                } else {
-//                    int currCityId = node.cityId;
-//                    int currCityDistance = node.distance;
-//
-//                    // find all city neigbours
-//                    sql =   "select IdC1 as 'IdC', Days from Distance where IdC2 = ?\n" +
-//                            "union\n" +
-//                            "select IdC2 as 'IdC', Days from Distance where IdC1 = ?";
-//                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//                        ps.setInt(1, currCityId);
-//                        ps.setInt(2, currCityId);
-//
-//                        ResultSet rs = ps.executeQuery();
-//
-//                        while (rs.next()) {
-//                            int cityId = rs.getInt("IdC");
-//                            int days = rs.getInt("Days");
-//                            if (visitedNoShop.contains(cityId)) continue;
-//                            GraphNode node1 = new GraphNode(cityId, currCityDistance + days);
-//                            queue.add(node1);
-//                        }
-//                    }
-//
-//                    // find all city neighbours with shops
-//                    sql =   "select IdC1 as 'IdC', Days\n" +
-//                            "from Distance join Shop S on (S.IdC=IdC1)\n" +
-//                            "where IdC2 = ?\n" +
-//                            "union\n" +
-//                            "select IdC2 as 'IdC', Days\n" +
-//                            "from Distance join Shop S on (S.IdC=IdC2)\n" +
-//                            "where IdC1 = ?";
-//                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//                        ps.setInt(1, currCityId);
-//                        ps.setInt(2, currCityId);
-//
-//                        ResultSet rs = ps.executeQuery();
-//
-//                        while (rs.next()) {
-//                            int cityId = rs.getInt("IdC");
-//
-//                            Optional<GraphNode> result = queue.stream()
-//                                    .filter(element -> element.cityId == cityId)
-//                                    .findFirst();
-//
-//                            if (result.isPresent()) {
-//                                GraphNode node1 = result.get();
-//                                node1.hasShop = true;
-//                            }
-//                        }
-//                    }
-//                } // end if
-//            } // end for
-//        } // end while
-//
-//        return closestShop;
-//    }
 }

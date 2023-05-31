@@ -190,31 +190,9 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         /****** location is now the city with shop closest to buyer *******/
 
-//        // get buyers city id
-//        sql = "select IdC from [Order] O join Buyer B on (O.IdB = B.IdB) where IdO = ?";
-//        int buyersCityId = -1;
-//        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, orderId);
-//            ResultSet rs = ps.executeQuery();
-//
-//            if (rs.next()) {
-//                buyersCityId = rs.getInt("IdC");
-//            }
-//        } catch (SQLException e) {}
-//
-//        if (buyersCityId != -1) {
-//            // find the city with closest shop
-//            try {
-//                int closestShopCityId = StudentMain.findCityWithClosestShop(buyersCityId);
-//
-//                // TO DO: set closestShopCityId as IdC in Order
-//
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        // TO DO
 
-        /**************** create transactions ******************/
+        /*********** for every Item's Shop in Order calculate min distanceFromA and save max(distanceFromA) in Order ***************/
 
         // TO DO
 
@@ -343,7 +321,10 @@ public class ct190431_OrderOperations implements OrderOperations {
 
     @Override
     public int getLocation(int orderId) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
+        // TO DO: just fetch cityId, nothing special to implement
+
+        return -1;
     }
     
 }

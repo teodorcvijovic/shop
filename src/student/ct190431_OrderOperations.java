@@ -162,20 +162,10 @@ public class ct190431_OrderOperations implements OrderOperations {
         /****************** update order ******************/
 
         Connection conn = DB.getInstance().getConnection();
-        String sql =    "update [Order] set State = 'sent', SentTime = getdate(), FinalPrice = (\n" +
-                        "\tselect sum(Count * Price * (100 - Discount) / 100)\n" +
-                        "\tfrom Item I join [Order] O on I.IdO = O.IdO join Article A on A.IdA = I.IdA join Shop S on S.IdS = A.IdS\n" +
-                        "\twhere O.IdO = ?\n" +
-                        "), DiscountSum = (\n" +
-                        "\tselect sum(Count * Price * Discount / 100) \n" +
-                        "\tfrom Item I join [Order] O on I.IdO = O.IdO join Article A on A.IdA = I.IdA join Shop S on S.IdS = A.IdS\n" +
-                        "\twhere O.IdO = ?\n" +
-                        ") where IdO = ?";
+        String sql = "update [Order] set State = 'sent', SentTime = getdate() where IdO = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
-            ps.setInt(2, orderId);
-            ps.setInt(3, orderId);
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows == 0) {
@@ -185,6 +175,18 @@ public class ct190431_OrderOperations implements OrderOperations {
 //          e.printStackTrace();
             return -1;
         }
+
+        /******** called SP_FINAL_PRICE to calculate FinalPrice and DiscountSum *************/
+
+        sql = "{ call SP_FINAL_PRICE(?) }";
+        try (CallableStatement stmt = conn.prepareCall(sql)) {
+            stmt.setInt(1, orderId);
+            stmt.execute();
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
+
 
         /****** location is now the city with shop closest to buyer *******/
 

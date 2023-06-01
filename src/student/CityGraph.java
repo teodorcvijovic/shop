@@ -22,6 +22,10 @@ public class CityGraph {
 
     public static HashMap<Integer, List<Node>> activeOrders = new HashMap<>();
 
+    // TO DO: activate order
+
+    // TO DO: update active orders - triggered from time func
+
     public static List<Node> convertStringToList(String string) {
         List<Node> arrayList = new ArrayList<>();
         String[] strArray = string.split("-");

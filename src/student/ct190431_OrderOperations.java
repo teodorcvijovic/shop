@@ -187,6 +187,9 @@ public class ct190431_OrderOperations implements OrderOperations {
             return -1;
         }
 
+        /********* create buyers transaction *************/
+
+        // TO DO
 
         /****** location is now the city with shop closest to buyer *******/
 

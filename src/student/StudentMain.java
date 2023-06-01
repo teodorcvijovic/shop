@@ -17,8 +17,9 @@ import java.util.List;
 public class StudentMain {
 
     public static void main(String[] args) {
-        boolean runPublicTests = true;
-        boolean runMyTest = true;
+        boolean runPublicTests = false;
+        boolean runMyTest1 = false;
+        boolean runMyTest2 = true;
 
         ArticleOperations articleOperations = new ct190431_ArticleOperations(); // Change this for your implementation (points will be negative if interfaces are not implemented).
         BuyerOperations buyerOperations = new ct190431_BuyerOperations();
@@ -42,7 +43,7 @@ public class StudentMain {
             TestRunner.runTests();
         }
 
-        if (runMyTest) {
+        if (runMyTest1) {
             generalOperations.eraseAll();
 
             int idA = cityOperations.createCity("A");
@@ -85,7 +86,32 @@ public class StudentMain {
             System.out.println("FinalPrice: " + orderOperations.getFinalPrice(order));
             System.out.println("DiscountSum: " + orderOperations.getDiscountSum(order));
 
+//            generalOperations.eraseAll();
+        }
+
+        if (runMyTest2) {
             generalOperations.eraseAll();
+
+            int cityB = cityOperations.createCity("B");
+            int cityC1 = cityOperations.createCity("C1");
+            int cityA = cityOperations.createCity("A");
+            int cityC2 = cityOperations.createCity("C2");
+            int cityC3 = cityOperations.createCity("C3");
+            int cityC4 = cityOperations.createCity("C4");
+            int cityC5 = cityOperations.createCity("C5");
+            cityOperations.connectCities(cityB, cityC1, 8);
+            cityOperations.connectCities(cityC1, cityA, 10);
+            cityOperations.connectCities(cityA, cityC2, 3);
+            cityOperations.connectCities(cityC2, cityC3, 2);
+            cityOperations.connectCities(cityC3, cityC4, 1);
+            cityOperations.connectCities(cityC4, cityA, 3);
+            cityOperations.connectCities(cityA, cityC5, 15);
+            cityOperations.connectCities(cityC5, cityB, 2);
+
+            System.out.println(CityGraph.findShortestPath(cityA, cityB).toString());
+            System.out.println(CityGraph.findMinDistance(cityA, cityB));
+
+//            generalOperations.eraseAll();
         }
     }
 

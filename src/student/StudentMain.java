@@ -108,7 +108,7 @@ public class StudentMain {
             cityOperations.connectCities(cityA, cityC5, 15);
             cityOperations.connectCities(cityC5, cityB, 2);
 
-            System.out.println(CityGraph.findShortestPath(cityA, cityB).toString());
+            CityGraph.findShortestPath(cityA, cityB);
             System.out.println(CityGraph.findMinDistance(cityA, cityB));
 
 //            generalOperations.eraseAll();

@@ -190,11 +190,19 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         /****** location is now the city with shop closest to buyer *******/
 
-        // TO DO
+        // get cityIds of cities with shops
+
+        // calculate distances
+
+        // save cityId with min distance + remember that path
 
         /*********** for every Item's Shop in Order calculate min distanceFromA and save max(distanceFromA) in Order ***************/
 
-        // TO DO
+        // get cityIds of items' shops
+
+        // calculate min distanceFromA from each cityId
+
+        // save max(distanceFromA) in order
 
         return -1;
     }
@@ -321,9 +329,20 @@ public class ct190431_OrderOperations implements OrderOperations {
 
     @Override
     public int getLocation(int orderId) {
+        String sql = "select IdC from [Order] where IdO = ?";
+        Connection conn = DB.getInstance().getConnection();
 
-        // TO DO: just fetch cityId, nothing special to implement
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, orderId);
 
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int cityId = resultSet.getInt("IdC");
+                return cityId;
+            }
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
         return -1;
     }
     

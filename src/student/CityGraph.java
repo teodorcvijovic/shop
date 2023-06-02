@@ -69,11 +69,13 @@ public class CityGraph {
         for (Integer orderId: activeOrders.keySet()) {
             int fromSendTime = ct190431_GeneralOperations.getTotalDaysBetweenDates(orderOperations.getSentTime(orderId), currentTime);
             int daysLeftForTravel = fromSendTime - getMaxDistanceFromA(orderId);
+            int daysForTravel = -1;
             int currCityId = orderOperations.getLocation(orderId);
             int newCityId = -1;
 
             List<Node> path = activeOrders.get(orderId);
 
+            int cnt = 0;
             for(Node cityNode: path) {
                 int cityId = cityNode.cityId;
                 int distance = cityNode.distance;
@@ -83,13 +85,41 @@ public class CityGraph {
                 }
 
                 newCityId = cityId;
+                daysForTravel = distance;
+                cnt++;
             }
 
             if (currCityId == newCityId) return;
             // set new city id
             setCityInOrder(orderId, newCityId);
 
-            // TO DO: deactivate order
+            // order arrived to buyer's city
+            if (cnt == path.size()) {
+                // deactivate order
+                activeOrders.remove(orderId);
+
+                Connection conn = DB.getInstance().getConnection();
+                String sql = "update [Order] set State = 'arrived', ReceiveTime = ? where IdO = ?";
+
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    java.util.Date utilDate = orderOperations.getSentTime(orderId).getTime();
+                    java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+
+                    long updatedTime = sqlDate.getTime() + (getMaxDistanceFromA(orderId) * 24L * 60L * 60L * 1000L);
+                    sqlDate.setTime(updatedTime);
+
+                    updatedTime = sqlDate.getTime() + (daysForTravel * 24L * 60L * 60L * 1000L);
+                    sqlDate.setTime(updatedTime);
+
+                    ps.setDate(1, sqlDate);
+                    ps.setInt(2, orderId);
+
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+//                  e.printStackTrace();
+                }
+            }
+
         }
     }
 

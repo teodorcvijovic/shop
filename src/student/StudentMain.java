@@ -192,6 +192,9 @@ public class StudentMain {
             generalOperations.time(5);
             Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityB);
 
+            time = orderOperations.getRecievedTime(order);
+            Assert.assertEquals(receivedTime, time);
+
 //            generalOperations.eraseAll();
         }
     }

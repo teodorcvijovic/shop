@@ -38,12 +38,13 @@ BEGIN
 	begin
 		declare @itemFinalPrice decimal(10,3);
 		set @itemFinalPrice = @count * @articlePrice * (100 - @shopDiscount) / 100;
-		set @itemFinalPrice = @itemFinalPrice * 0.95
 
 		set @FinalPrice = @FinalPrice + @itemFinalPrice;
 		set @DiscountSum = @DiscountSum + (@count * @articlePrice * @shopDiscount / 100);
 
 		-- update Item's FinalPrice
+		set @itemFinalPrice = @itemFinalPrice * 0.95
+
 		update Item
 		set FinalPrice = @itemFinalPrice
 		where IdI = @IdI;

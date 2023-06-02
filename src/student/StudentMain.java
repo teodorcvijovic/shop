@@ -169,8 +169,8 @@ public class StudentMain {
             BigDecimal shopC2AmountReal = shopC2AmountWithDiscount.multiply(new BigDecimal("0.95")).setScale(3);
             BigDecimal shopC3AmountReal = shopC3Amount.multiply(new BigDecimal("0.95")).setScale(3);
 
-//            Assert.assertEquals(amountWithDiscounts, orderOperations.getFinalPrice(order));
-//            Assert.assertEquals(amountWithoutDiscounts.subtract(amountWithDiscounts), orderOperations.getDiscountSum(order));
+            Assert.assertEquals(amountWithDiscounts, orderOperations.getFinalPrice(order));
+            Assert.assertEquals(amountWithoutDiscounts.subtract(amountWithDiscounts), orderOperations.getDiscountSum(order));
 //            Assert.assertEquals(amountWithDiscounts, transactionOperations.getBuyerTransactionsAmmount(buyer));
 //            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopA), (new BigDecimal("0")).setScale(3));
 //            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC2), (new BigDecimal("0")).setScale(3));
@@ -191,8 +191,6 @@ public class StudentMain {
 
             generalOperations.time(5);
             Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityB);
-
-
 
 //            generalOperations.eraseAll();
         }

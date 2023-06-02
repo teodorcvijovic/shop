@@ -69,7 +69,6 @@ public class CityGraph {
         for (Integer orderId: activeOrders.keySet()) {
             int fromSendTime = ct190431_GeneralOperations.getTotalDaysBetweenDates(orderOperations.getSentTime(orderId), currentTime);
             int daysLeftForTravel = fromSendTime - getMaxDistanceFromA(orderId);
-            int initDaysLeftForTravel = daysLeftForTravel;
             int currCityId = orderOperations.getLocation(orderId);
             int newCityId = -1;
 
@@ -84,12 +83,13 @@ public class CityGraph {
                 }
 
                 newCityId = cityId;
-//                daysLeftForTravel = initDaysLeftForTravel - distance;
             }
 
             if (currCityId == newCityId) return;
             // set new city id
             setCityInOrder(orderId, newCityId);
+
+            // TO DO: deactivate order
         }
     }
 

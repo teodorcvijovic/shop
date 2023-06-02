@@ -202,6 +202,8 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         /************** check if Buyer has enough Credit to pay FinalPrice ****************/
 
+        // TO DO: this should be done upon order arival
+
         int buyerCityId = -1;
         sql = "select o.FinalPrice as FinalPrice, b.Credit as Credit, b.IdC as IdC \n" +
                 "from [Order] o join Buyer b on b.IdB = o.IdB\n" +
@@ -211,11 +213,11 @@ public class ct190431_OrderOperations implements OrderOperations {
 
             ResultSet rs = ps.executeQuery();
             if(rs.next()) {
-                int finalPrice = rs.getInt("FinalPrice");
-                int buyerCredit = rs.getInt("Credit");
+                BigDecimal finalPrice = rs.getBigDecimal("FinalPrice");
+                BigDecimal buyerCredit = rs.getBigDecimal("Credit");
                 buyerCityId = rs.getInt("IdC");
 
-                if (buyerCredit < finalPrice) {
+                if (buyerCredit.compareTo(finalPrice) == -1) {
                     // buyer does not have enough money to pay the order
                     return -1;
                 }
@@ -226,6 +228,8 @@ public class ct190431_OrderOperations implements OrderOperations {
         }
 
         /********* create buyers transaction *************/
+
+        // TO DO: this should be done upon order arival
 
         sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, (select FinalPrice from [Order] where IdO = ?), ?, getdate())";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -325,6 +329,10 @@ public class ct190431_OrderOperations implements OrderOperations {
             ps.setInt(2, orderId);
 
             ps.executeUpdate();
+
+            /*********** activate order ***************/
+            List<CityGraph.Node> path = CityGraph.findShortestPath(getLocation(orderId), buyerCityId);
+            CityGraph.activeOrders.put(orderId, path);
 
             return 1;
         } catch (SQLException e) {

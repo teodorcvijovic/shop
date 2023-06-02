@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,9 +23,14 @@ public class CityGraph {
 
     public static HashMap<Integer, List<Node>> activeOrders = new HashMap<>();
 
-    // TO DO: activate order
+    // order needs to be activated - in completeOrder method
 
-    // TO DO: update active orders - triggered from time func
+    // invoked in time func
+    public static void updateActiveOrders(Calendar currentTime) {
+        for (Integer orderId: activeOrders.keySet()) {
+
+        }
+    }
 
     public static List<Node> convertStringToList(String string) {
         List<Node> arrayList = new ArrayList<>();
@@ -39,19 +45,20 @@ public class CityGraph {
     public static String shortestPathQuery = "WITH CTE AS (\n" +
             "    SELECT c1.IdC AS CityFrom, c2.IdC AS CityTo, d1.[Days] AS Distance,\n" +
             "           CAST(c1.IdC AS VARCHAR(MAX)) + '-' + CAST(d1.[Days] AS VARCHAR(MAX)) + '-' + CAST(c2.IdC AS VARCHAR(MAX)) AS Path, 1 AS [Level]\n" +
-            "    FROM Distance d1 \n" +
-            "\tJOIN City c1 ON d1.IdC1 = c1.IdC \n" +
-            "\tJOIN City c2 ON d1.IdC2 = c2.IdC\n" +
+            "    FROM Distance d1\n" +
+            "    JOIN City c1 ON d1.IdC1 = c1.IdC\n" +
+            "    JOIN City c2 ON d1.IdC2 = c2.IdC\n" +
             "    \n" +
             "    UNION ALL\n" +
             "    \n" +
-            "    SELECT c.CityFrom, d2.IdC2, (c.Distance + d2.[Days]) AS Distance,\n" +
+            "\tSELECT c.CityFrom, d2.IdC2, (c.Distance + d2.[Days]) AS Distance,\n" +
             "           c.Path + '-' + CAST((c.Distance + d2.[Days]) AS VARCHAR(MAX))+ '-' + CAST(d2.IdC2 AS VARCHAR(MAX)), c.[Level] + 1\n" +
             "    FROM CTE c\n" +
-            "    JOIN Distance d2 ON c.CityTo = d2.IdC1\n" +
-            "    WHERE c.[Level] < 20\n" +
+            "    JOIN Distance d2 ON (c.CityTo = d2.IdC1 OR c.CityTo = d2.IdC2 OR c.CityFrom = d2.IdC1 OR c.CityFrom = d2.IdC2)\n" +
+            "    WHERE c.[Level] < 20 AND c.Path NOT LIKE '%' + CAST(d2.IdC2 AS VARCHAR(MAX)) + '%'\n" +
+            "\n" +
             ")\n" +
-            "SELECT TOP 1 CityFrom, CityTo, MIN(Distance) AS MinDistance, Path AS ShortestPath\n" +
+            "SELECT CityFrom, CityTo, MIN(Distance) AS MinDistance, Path AS ShortestPath\n" +
             "FROM CTE\n" +
             "WHERE (CityFrom = ? AND CityTo = ?) OR (CityFrom = ? AND CityTo = ?)\n" +
             "GROUP BY CityFrom, CityTo, Path\n" +
@@ -80,6 +87,8 @@ public class CityGraph {
     }
 
     public static int findMinDistance(int cityIdFrom, int cityIdTo) {
+        if (cityIdFrom == cityIdTo) return 0;
+
         Connection connection = DB.getInstance().getConnection();
         try (PreparedStatement ps = connection.prepareStatement(shortestPathQuery)) {
             ps.setInt(1, cityIdFrom);

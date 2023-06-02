@@ -65,12 +65,16 @@ public class ct190431_CityOperations implements CityOperations {
     @Override
     public int connectCities(int cityId1, int cityId2, int distance) {
         Connection conn = DB.getInstance().getConnection();
-        String sql = "INSERT INTO Distance (IdC1, IdC2, Days) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Distance (IdC1, IdC2, Days) VALUES (?, ?, ?), (?, ?, ?)";
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, cityId1);
             statement.setInt(2, cityId2);
             statement.setInt(3, distance);
+
+            statement.setInt(4, cityId2);
+            statement.setInt(5, cityId1);
+            statement.setInt(6, distance);
             return statement.executeUpdate();
         } catch (SQLException e) {
 //            e.printStackTrace();

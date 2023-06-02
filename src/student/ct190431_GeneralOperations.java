@@ -24,7 +24,8 @@ public class ct190431_GeneralOperations implements GeneralOperations {
     @Override
     public Calendar time(int days) {
         this.time.add(Calendar.DAY_OF_MONTH, days);
-        // TO DO: update cityId in order and write a trigger for transaction creation
+
+        CityGraph.updateActiveOrders(this.time);
 
         return this.time;
     }

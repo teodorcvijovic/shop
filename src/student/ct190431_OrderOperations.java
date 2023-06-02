@@ -6,11 +6,11 @@ package student;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
 import rs.etf.sab.operations.OrderOperations;
+
+import javax.xml.transform.Result;
 import java.sql.*;
 
 /**
@@ -200,26 +200,136 @@ public class ct190431_OrderOperations implements OrderOperations {
             return -1;
         }
 
+        /************** check if Buyer has enough Credit to pay FinalPrice ****************/
+
+        int buyerCityId = -1;
+        sql = "select o.FinalPrice as FinalPrice, b.Credit as Credit, b.IdC as IdC \n" +
+                "from [Order] o join Buyer b on b.IdB = o.IdB\n" +
+                "where o.IdO = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                int finalPrice = rs.getInt("FinalPrice");
+                int buyerCredit = rs.getInt("Credit");
+                buyerCityId = rs.getInt("IdC");
+
+                if (buyerCredit < finalPrice) {
+                    // buyer does not have enough money to pay the order
+                    return -1;
+                }
+            }
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
+
         /********* create buyers transaction *************/
 
-        // TO DO
+        sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, (select FinalPrice from [Order] where IdO = ?), ?, getdate())";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ps.setInt(2, orderId);
+            ps.setInt(3, getBuyer(orderId));
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
 
         /****** location is now the city with shop closest to buyer *******/
 
         // get cityIds of cities with shops
+        ArrayList<Integer> citiesWithShops = new ArrayList<>();
+        sql = "select c.IdC as IdC\n" +
+                "from Shop s join City c on s.IdC = c.IdC\n" +
+                "group by c.IdC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                citiesWithShops.add(rs.getInt("IdC"));
+            }
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
 
         // calculate distances
+        HashMap<Integer, Integer> distancesFromB = new HashMap<>();
+        for(Integer cityId: citiesWithShops) {
+            int minDistance = CityGraph.findMinDistance(cityId, buyerCityId);
+            distancesFromB.put(cityId, minDistance);
+        }
 
-        // save cityId with min distance + remember that path
+        // find cityId with min distance + remember that path
+        int minDistance1 = Integer.MAX_VALUE;
+        int closestShopCityId = -1;
+        for (Integer cityId : distancesFromB.keySet()) {
+            int distance = distancesFromB.get(cityId);
+            if (distance < minDistance1) {
+                minDistance1 = distance;
+                closestShopCityId = cityId;
+            }
+        }
+
+        // set cityId to order
+        sql = "update [Order] set IdC = ? where IdO = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, closestShopCityId);
+            ps.setInt(2, orderId);
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                return -1;
+            }
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
 
         /*********** for every Item's Shop in Order calculate min distanceFromA and save max(distanceFromA) in Order ***************/
 
         // get cityIds of items' shops
+        ArrayList<Integer> cityIdsOfItemsShops = new ArrayList<>();
+        sql = "select distinct s.IdC as IdC\n" +
+                "from Item i join [Order] o on o.IdO = i.IdO join Article a on a.IdA = i.IdA join Shop s on s.IdS = a.IdS\n" +
+                "where o.IdO = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
 
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+                cityIdsOfItemsShops.add(rs.getInt("IdC"));
+            }
+        } catch (SQLException e) {
+//          e.printStackTrace();
+            return -1;
+        }
 
         // calculate min distanceFromA from each cityId
+        int maxDistanceFromA = -1;
+        for(Integer cityId: cityIdsOfItemsShops) {
+            int minDistance = CityGraph.findMinDistance(cityId, this.getLocation(orderId));
+            if (minDistance > maxDistanceFromA) {
+                maxDistanceFromA = minDistance;
+            }
+        }
 
         // save max(distanceFromA) in order
+        sql = "update [Order] set MaxDistanceFromA = ? where IdO = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maxDistanceFromA);
+            ps.setInt(2, orderId);
+
+            ps.executeUpdate();
+
+            return 1;
+        } catch (SQLException e) {
+//          e.printStackTrace();
+        }
 
         return -1;
     }

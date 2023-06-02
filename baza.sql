@@ -76,7 +76,8 @@ CREATE TABLE [Item]
 	[IdO]                integer  NOT NULL ,
 	[Count]              integer  NULL 
 	CONSTRAINT [zero_value_1344457957]
-		 DEFAULT  0
+		 DEFAULT  0,
+	[FinalPrice]         decimal(10,3)  NULL 
 )
 go
 
@@ -95,8 +96,7 @@ CREATE TABLE [Order]
 		 DEFAULT  -1,
 	[DiscountSum]        decimal(10,3)  NULL 
 	CONSTRAINT [minus_one_value_95676559]
-		 DEFAULT  -1,
-	[MaxDistanceFromA]   integer  NULL 
+		 DEFAULT  -1
 )
 go
 
@@ -116,7 +116,8 @@ CREATE TABLE [Transaction]
 	[IdT]                integer  IDENTITY  NOT NULL ,
 	[IdO]                integer  NOT NULL ,
 	[Amount]             decimal(10,3)  NULL ,
-	[IdC]                integer  NOT NULL 
+	[IdC]                integer  NOT NULL ,
+	[ExecutionTime]      datetime  NULL 
 )
 go
 

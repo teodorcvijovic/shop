@@ -18,8 +18,8 @@ public class StudentMain {
 
     public static void main(String[] args) {
         boolean runPublicTests = false;
-        boolean runMyTest1 = false;
-        boolean runMyTest2 = true;
+        boolean runMyTest1 = true;
+        boolean runMyTest2 = false;
 
         ArticleOperations articleOperations = new ct190431_ArticleOperations(); // Change this for your implementation (points will be negative if interfaces are not implemented).
         BuyerOperations buyerOperations = new ct190431_BuyerOperations();
@@ -85,6 +85,7 @@ public class StudentMain {
 //            System.out.println(orderOperations.getRecievedTime(order).toString());
             System.out.println("FinalPrice: " + orderOperations.getFinalPrice(order));
             System.out.println("DiscountSum: " + orderOperations.getDiscountSum(order));
+            System.out.println("City: " + orderOperations.getLocation(order));
 
 //            generalOperations.eraseAll();
         }

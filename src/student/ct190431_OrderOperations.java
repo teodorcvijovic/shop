@@ -89,6 +89,19 @@ public class ct190431_OrderOperations implements OrderOperations {
 //          e.printStackTrace();
         }
 
+        // decrement available count
+        sql = "update Article set AvailableCount = AvailableCount - ? where IdA = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, increment);
+            ps.setInt(2, articleId);
+
+            ps.executeUpdate();
+
+            return itemId;
+        } catch (SQLException e) {
+//          e.printStackTrace();
+        }
+
         return -1;
     }
 
@@ -202,6 +215,7 @@ public class ct190431_OrderOperations implements OrderOperations {
         /*********** for every Item's Shop in Order calculate min distanceFromA and save max(distanceFromA) in Order ***************/
 
         // get cityIds of items' shops
+
 
         // calculate min distanceFromA from each cityId
 

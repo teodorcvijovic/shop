@@ -1,5 +1,8 @@
 package student;
 
+import rs.etf.sab.operations.GeneralOperations;
+import rs.etf.sab.operations.OrderOperations;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,10 +28,68 @@ public class CityGraph {
 
     // order needs to be activated - in completeOrder method
 
+    public static OrderOperations orderOperations = null;
+    public static GeneralOperations generalOperations = null;
+
+    public static int getMaxDistanceFromA(int orderId) {
+        Connection conn = DB.getInstance().getConnection();
+        String sql = "SELECT MaxDistanceFromA FROM [Order] WHERE IdO = ?";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, orderId);
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int maxDistanceFromA = resultSet.getInt("MaxDistanceFromA");
+                return maxDistanceFromA;
+            }
+        } catch (SQLException e) {
+//            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static void setCityInOrder(int orderId, int cityId) {
+        Connection conn = DB.getInstance().getConnection();
+
+        String sql = "update [Order] set IdC = ? where IdO = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, cityId);
+            ps.setInt(2, orderId);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+//          e.printStackTrace();
+        }
+    }
+
     // invoked in time func
     public static void updateActiveOrders(Calendar currentTime) {
         for (Integer orderId: activeOrders.keySet()) {
+            int fromSendTime = ct190431_GeneralOperations.getTotalDaysBetweenDates(orderOperations.getSentTime(orderId), currentTime);
+            int daysLeftForTravel = fromSendTime - getMaxDistanceFromA(orderId);
+            int initDaysLeftForTravel = daysLeftForTravel;
+            int currCityId = orderOperations.getLocation(orderId);
+            int newCityId = -1;
 
+            List<Node> path = activeOrders.get(orderId);
+
+            for(Node cityNode: path) {
+                int cityId = cityNode.cityId;
+                int distance = cityNode.distance;
+
+                if (daysLeftForTravel < distance) {
+                    break;
+                }
+
+                newCityId = cityId;
+//                daysLeftForTravel = initDaysLeftForTravel - distance;
+            }
+
+            if (currCityId == newCityId) return;
+            // set new city id
+            setCityInOrder(orderId, newCityId);
         }
     }
 
@@ -60,7 +121,7 @@ public class CityGraph {
             ")\n" +
             "SELECT CityFrom, CityTo, MIN(Distance) AS MinDistance, Path AS ShortestPath\n" +
             "FROM CTE\n" +
-            "WHERE (CityFrom = ? AND CityTo = ?) OR (CityFrom = ? AND CityTo = ?)\n" +
+            "WHERE (CityFrom = ? AND CityTo = ?)\n" +
             "GROUP BY CityFrom, CityTo, Path\n" +
             "ORDER BY MinDistance ASC;";
 
@@ -69,8 +130,8 @@ public class CityGraph {
         try (PreparedStatement ps = connection.prepareStatement(shortestPathQuery)) {
             ps.setInt(1, cityIdFrom);
             ps.setInt(2, cityIdTo);
-            ps.setInt(3, cityIdTo);
-            ps.setInt(4, cityIdFrom);
+//            ps.setInt(3, cityIdTo);
+//            ps.setInt(4, cityIdFrom);
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -93,8 +154,8 @@ public class CityGraph {
         try (PreparedStatement ps = connection.prepareStatement(shortestPathQuery)) {
             ps.setInt(1, cityIdFrom);
             ps.setInt(2, cityIdTo);
-            ps.setInt(3, cityIdTo);
-            ps.setInt(4, cityIdFrom);
+//            ps.setInt(3, cityIdTo);
+//            ps.setInt(4, cityIdFrom);
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {

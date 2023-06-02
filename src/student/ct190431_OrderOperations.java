@@ -175,10 +175,14 @@ public class ct190431_OrderOperations implements OrderOperations {
         /****************** update order ******************/
 
         Connection conn = DB.getInstance().getConnection();
-        String sql = "update [Order] set State = 'sent', SentTime = getdate() where IdO = ?";
+        String sql = "update [Order] set State = 'sent', SentTime = ? where IdO = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, orderId);
+            java.util.Date utilDate = CityGraph.generalOperations.getCurrentTime().getTime();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+
+            ps.setDate(1, sqlDate);
+            ps.setInt(2, orderId);
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows == 0) {
@@ -231,11 +235,15 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         // TO DO: this should be done upon order arival
 
-        sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, (select FinalPrice from [Order] where IdO = ?), ?, getdate())";
+        sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, (select FinalPrice from [Order] where IdO = ?), ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setInt(2, orderId);
             ps.setInt(3, getBuyer(orderId));
+
+            java.util.Date utilDate = CityGraph.generalOperations.getCurrentTime().getTime();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            ps.setDate(4, sqlDate);
 
             ps.executeUpdate();
         } catch (SQLException e) {

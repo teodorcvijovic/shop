@@ -1,16 +1,19 @@
 package student;
 
+import org.junit.Assert;
 import student.*;
 import rs.etf.sab.operations.*;
 import org.junit.Test;
 import rs.etf.sab.tests.TestHandler;
 import rs.etf.sab.tests.TestRunner;
 
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,8 +21,8 @@ public class StudentMain {
 
     public static void main(String[] args) {
         boolean runPublicTests = false;
-        boolean runMyTest1 = true;
-        boolean runMyTest2 = false;
+        boolean runMyTest1 = false;
+        boolean runMyTest2 = true;
 
         ArticleOperations articleOperations = new ct190431_ArticleOperations(); // Change this for your implementation (points will be negative if interfaces are not implemented).
         BuyerOperations buyerOperations = new ct190431_BuyerOperations();
@@ -28,6 +31,9 @@ public class StudentMain {
         OrderOperations orderOperations = new ct190431_OrderOperations();
         ShopOperations shopOperations = new ct190431_ShopOperations();
         TransactionOperations transactionOperations = new ct190431_TransactionOperations();
+
+        CityGraph.orderOperations = orderOperations;
+        CityGraph.generalOperations = generalOperations;
 
         if (runPublicTests) {
             TestHandler.createInstance(
@@ -93,6 +99,13 @@ public class StudentMain {
         if (runMyTest2) {
             generalOperations.eraseAll();
 
+            Calendar initialTime = Calendar.getInstance();
+            initialTime.clear();
+            initialTime.set(2018, 0, 1);
+            generalOperations.setInitialTime(initialTime);
+            Calendar receivedTime = Calendar.getInstance();
+            receivedTime.clear();
+            receivedTime.set(2018, 0, 22);
             int cityB = cityOperations.createCity("B");
             int cityC1 = cityOperations.createCity("C1");
             int cityA = cityOperations.createCity("A");
@@ -109,8 +122,77 @@ public class StudentMain {
             cityOperations.connectCities(cityA, cityC5, 15);
             cityOperations.connectCities(cityC5, cityB, 2);
 
-            CityGraph.findShortestPath(cityA, cityB);
-            System.out.println(CityGraph.findMinDistance(cityA, cityB));
+            int shopA = shopOperations.createShop("shopA", "A");
+            int shopC2 = shopOperations.createShop("shopC2", "C2");
+            int shopC3 = shopOperations.createShop("shopC3", "C3");
+            shopOperations.setDiscount(shopA, 20);
+            shopOperations.setDiscount(shopC2, 50);
+
+            int laptop = articleOperations.createArticle(shopA, "laptop", 1000);
+            int monitor = articleOperations.createArticle(shopC2, "monitor", 200);
+            int stolica = articleOperations.createArticle(shopC3, "stolica", 100);
+            int sto = articleOperations.createArticle(shopC3, "sto", 200);
+
+            shopOperations.increaseArticleCount(laptop, 10);
+            shopOperations.increaseArticleCount(monitor, 10);
+            shopOperations.increaseArticleCount(stolica, 10);
+            shopOperations.increaseArticleCount(sto, 10);
+
+            int buyer = buyerOperations.createBuyer("kupac", cityB);
+            buyerOperations.increaseCredit(buyer, new BigDecimal("20000"));
+
+            int order = buyerOperations.createOrder(buyer);
+            orderOperations.addArticle(order, laptop, 5);
+            orderOperations.addArticle(order, monitor, 4);
+            orderOperations.addArticle(order, stolica, 10);
+            orderOperations.addArticle(order, sto, 4);
+
+            Assert.assertNull(orderOperations.getSentTime(order));
+            Assert.assertTrue("created".equals(orderOperations.getState(order)));
+
+            orderOperations.completeOrder(order);
+            Assert.assertTrue("sent".equals(orderOperations.getState(order)));
+
+//            int buyerTransactionId = (Integer) transactionOperations.getTransationsForBuyer(buyer).get(0);
+//            Assert.assertEquals(initialTime, transactionOperations.getTimeOfExecution(buyerTransactionId));
+//            Assert.assertNull(transactionOperations.getTransationsForShop(shopA));
+
+            BigDecimal shopAAmount = (new BigDecimal("5")).multiply(new BigDecimal("1000")).setScale(3);
+            BigDecimal shopAAmountWithDiscount = (new BigDecimal("0.8")).multiply(shopAAmount).setScale(3);
+            BigDecimal shopC2Amount = (new BigDecimal("4")).multiply(new BigDecimal("200")).setScale(3);
+            BigDecimal shopC2AmountWithDiscount = (new BigDecimal("0.5")).multiply(shopC2Amount).setScale(3);
+            BigDecimal shopC3Amount = (new BigDecimal("10")).multiply(new BigDecimal("100")).add((new BigDecimal("4")).multiply(new BigDecimal("200"))).setScale(3);
+            BigDecimal amountWithoutDiscounts = shopAAmount.add(shopC2Amount).add(shopC3Amount).setScale(3);
+            BigDecimal amountWithDiscounts = shopAAmountWithDiscount.add(shopC2AmountWithDiscount).add(shopC3Amount).setScale(3);
+            BigDecimal systemProfit = amountWithDiscounts.multiply(new BigDecimal("0.05")).setScale(3);
+            BigDecimal shopAAmountReal = shopAAmountWithDiscount.multiply(new BigDecimal("0.95")).setScale(3);
+            BigDecimal shopC2AmountReal = shopC2AmountWithDiscount.multiply(new BigDecimal("0.95")).setScale(3);
+            BigDecimal shopC3AmountReal = shopC3Amount.multiply(new BigDecimal("0.95")).setScale(3);
+
+//            Assert.assertEquals(amountWithDiscounts, orderOperations.getFinalPrice(order));
+//            Assert.assertEquals(amountWithoutDiscounts.subtract(amountWithDiscounts), orderOperations.getDiscountSum(order));
+//            Assert.assertEquals(amountWithDiscounts, transactionOperations.getBuyerTransactionsAmmount(buyer));
+//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopA), (new BigDecimal("0")).setScale(3));
+//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC2), (new BigDecimal("0")).setScale(3));
+//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC3), (new BigDecimal("0")).setScale(3));
+//            Assert.assertEquals((new BigDecimal("0")).setScale(3), transactionOperations.getSystemProfit());
+
+            generalOperations.time(2);
+            Calendar time = orderOperations.getSentTime(order);
+            Assert.assertEquals(initialTime, time);
+            Assert.assertNull(orderOperations.getRecievedTime(order));
+            Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityA);
+
+            generalOperations.time(9);
+            Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityA);
+
+            generalOperations.time(8);
+            Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityC5);
+
+            generalOperations.time(5);
+            Assert.assertEquals((long) orderOperations.getLocation(order), (long) cityB);
+
+
 
 //            generalOperations.eraseAll();
         }

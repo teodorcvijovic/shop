@@ -1,14 +1,6 @@
--- ================================================
--- Template generated from Template Explorer using:
--- Create Procedure (New Menu).SQL
---
--- Use the Specify Values for Template Parameters 
--- command (Ctrl-Shift-M) to fill in the parameter 
--- values below.
---
--- This block of comments will not be included in
--- the definition of the procedure.
--- ================================================
+USE [shop]
+GO
+/****** Object:  StoredProcedure [dbo].[SP_FINAL_PRICE]    Script Date: 2.6.2023. 17:58:53 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -18,7 +10,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-alter PROCEDURE SP_FINAL_PRICE 
+ALTER PROCEDURE [dbo].[SP_FINAL_PRICE] 
 	@IdO int
 AS
 BEGIN
@@ -36,7 +28,7 @@ BEGIN
 	set @kursor = cursor for 
 	select IdI, Price, Count, Discount
 	from Item I join [Order] O on I.IdO = O.IdO join Article A on A.IdA = I.IdA join Shop S on S.IdS = A.IdS
-    where O.IdO = 6
+    where O.IdO = @IdO
 
 	open @kursor
 	fetch next from @kursor
@@ -82,4 +74,3 @@ BEGIN
 	close @kursor
 	deallocate @kursor
 END
-GO

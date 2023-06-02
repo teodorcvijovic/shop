@@ -18,7 +18,8 @@ public class ct190431_GeneralOperations implements GeneralOperations {
 
     @Override
     public void setInitialTime(Calendar time) {
-        this.time = time;
+        this.time = Calendar.getInstance();
+        this.time.setTimeInMillis(time.getTimeInMillis());
     }
 
     @Override

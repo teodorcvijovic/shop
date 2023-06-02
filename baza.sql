@@ -118,7 +118,10 @@ CREATE TABLE [Transaction]
 	[IdO]                integer  NOT NULL ,
 	[Amount]             decimal(10,3)  NULL ,
 	[IdC]                integer  NOT NULL ,
-	[ExecutionTime]      datetime  NULL 
+	[ExecutionTime]      datetime  NULL ,
+	[IsExecuted]         integer  NULL 
+	CONSTRAINT [zero_value_884454048]
+		 DEFAULT  0
 )
 go
 
@@ -212,7 +215,7 @@ go
 ALTER TABLE [Order]
 	ADD CONSTRAINT [R_9] FOREIGN KEY ([IdB]) REFERENCES [Buyer]([IdB])
 		ON DELETE NO ACTION
-	
+		ON UPDATE CASCADE
 go
 
 ALTER TABLE [Order]

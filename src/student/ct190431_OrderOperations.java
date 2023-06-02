@@ -206,9 +206,10 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         /************** check if Buyer has enough Credit to pay FinalPrice ****************/
 
-        // TO DO: this should be done upon order arival
-
         int buyerCityId = -1;
+        java.sql.Date sqlDate = null;
+        BigDecimal finalPrice = null;
+        BigDecimal buyerCredit;
         sql = "select o.FinalPrice as FinalPrice, b.Credit as Credit, b.IdC as IdC \n" +
                 "from [Order] o join Buyer b on b.IdB = o.IdB\n" +
                 "where o.IdO = ?";
@@ -217,14 +218,14 @@ public class ct190431_OrderOperations implements OrderOperations {
 
             ResultSet rs = ps.executeQuery();
             if(rs.next()) {
-                BigDecimal finalPrice = rs.getBigDecimal("FinalPrice");
-                BigDecimal buyerCredit = rs.getBigDecimal("Credit");
+                finalPrice = rs.getBigDecimal("FinalPrice");
+                buyerCredit = rs.getBigDecimal("Credit");
                 buyerCityId = rs.getInt("IdC");
 
-                if (buyerCredit.compareTo(finalPrice) == -1) {
-                    // buyer does not have enough money to pay the order
-                    return -1;
-                }
+//                if (buyerCredit.compareTo(finalPrice) == -1) {
+//                    // buyer does not have enough money to pay the order
+//                    finalPrice = new BigDecimal(0);
+//                }
             }
         } catch (SQLException e) {
 //          e.printStackTrace();
@@ -233,16 +234,24 @@ public class ct190431_OrderOperations implements OrderOperations {
 
         /********* create buyers transaction *************/
 
-        // TO DO: this should be done upon order arival
+        sql = "update [Buyer] set Credit = Credit - ? where IdB = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, finalPrice);
+            ps.setInt(2, getBuyer(orderId));
 
-        sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, (select FinalPrice from [Order] where IdO = ?), ?, ?)";
+            ps.executeUpdate();
+        } catch (SQLException e) {
+//          e.printStackTrace();
+        }
+
+        sql = "insert into [Transaction] (IdO, Amount, IdC, ExecutionTime) values (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
-            ps.setInt(2, orderId);
+            ps.setBigDecimal(2, finalPrice);
             ps.setInt(3, getBuyer(orderId));
 
             java.util.Date utilDate = CityGraph.generalOperations.getCurrentTime().getTime();
-            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            sqlDate = new java.sql.Date(utilDate.getTime());
             ps.setDate(4, sqlDate);
 
             ps.executeUpdate();

@@ -20,9 +20,9 @@ import java.util.List;
 public class StudentMain {
 
     public static void main(String[] args) {
-        boolean runPublicTests = false;
+        boolean runPublicTests = true;
         boolean runMyTest1 = false;
-        boolean runMyTest2 = true;
+        boolean runMyTest2 = false;
 
         ArticleOperations articleOperations = new ct190431_ArticleOperations(); // Change this for your implementation (points will be negative if interfaces are not implemented).
         BuyerOperations buyerOperations = new ct190431_BuyerOperations();
@@ -171,11 +171,11 @@ public class StudentMain {
 
             Assert.assertEquals(amountWithDiscounts, orderOperations.getFinalPrice(order));
             Assert.assertEquals(amountWithoutDiscounts.subtract(amountWithDiscounts), orderOperations.getDiscountSum(order));
-//            Assert.assertEquals(amountWithDiscounts, transactionOperations.getBuyerTransactionsAmmount(buyer));
-//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopA), (new BigDecimal("0")).setScale(3));
-//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC2), (new BigDecimal("0")).setScale(3));
-//            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC3), (new BigDecimal("0")).setScale(3));
-//            Assert.assertEquals((new BigDecimal("0")).setScale(3), transactionOperations.getSystemProfit());
+            Assert.assertEquals(amountWithDiscounts, transactionOperations.getBuyerTransactionsAmmount(buyer));
+            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopA), (new BigDecimal("0")).setScale(3));
+            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC2), (new BigDecimal("0")).setScale(3));
+            Assert.assertEquals(transactionOperations.getShopTransactionsAmmount(shopC3), (new BigDecimal("0")).setScale(3));
+            Assert.assertEquals((new BigDecimal("0")).setScale(3), transactionOperations.getSystemProfit());
 
             generalOperations.time(2);
             Calendar time = orderOperations.getSentTime(order);
@@ -194,6 +194,14 @@ public class StudentMain {
 
             time = orderOperations.getRecievedTime(order);
             Assert.assertEquals(receivedTime, time);
+
+            Assert.assertEquals(shopAAmountReal, transactionOperations.getShopTransactionsAmmount(shopA));
+            Assert.assertEquals(shopC2AmountReal, transactionOperations.getShopTransactionsAmmount(shopC2));
+            Assert.assertEquals(shopC3AmountReal, transactionOperations.getShopTransactionsAmmount(shopC3));
+            Assert.assertEquals(systemProfit, transactionOperations.getSystemProfit());
+            int shopATransactionId = transactionOperations.getTransactionForShopAndOrder(order, shopA);
+            Assert.assertNotEquals(-1L, (long)shopATransactionId);
+            Assert.assertEquals(receivedTime, transactionOperations.getTimeOfExecution(shopATransactionId));
 
 //            generalOperations.eraseAll();
         }
